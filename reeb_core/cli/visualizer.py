@@ -18,7 +18,7 @@ import vtk
 import numpy as np
 import networkx as nx
 
-from reeb_core.utils import load_streamlines
+from reeb_core.utils import load_streamlines, save_reeb_graph, load_reeb_graph
 from reeb_core.algorithms import construct_robust_reeb
 
 # ---------------------------------------------------------------------------
@@ -641,6 +641,11 @@ def main():
     parser.add_argument("--resample", "-r", type=int, default=40,
                         help="Number of points to resample streamlines (default: 40)")
 
+    parser.add_argument("--save_graph", type=str, default=None,
+                        help="Path to save the computed Reeb graph as JSON for future use.")
+    parser.add_argument("--load_graph", type=str, default=None,
+                        help="Path to load a pre-computed Reeb graph JSON, skipping computation.")
+
     args = parser.parse_args()
 
     print(f"Loading streamlines from {args.in_tractogram}...")
@@ -651,22 +656,47 @@ def main():
         sys.exit(1)
 
     print(f"Loaded {len(streamlines)} streamlines.")
-    print("Constructing Reeb graph using Tractosearch clustering...")
-    try:
-        R, node_loc = construct_robust_reeb(
-            streamlines,
-            eps=args.epsilon,
-            alpha=args.alpha,
-            delta=args.delta,
-            clustering_threshold=args.clustering_threshold,
-            resample_nb=args.resample
-        )
-    except Exception as err:
-        print(f"Error constructing Reeb graph: {err}", file=sys.stderr)
-        sys.exit(1)
+
+    if args.load_graph:
+        print(f"Loading pre-computed Reeb graph from {args.load_graph}...")
+        try:
+            R, node_loc, metadata = load_reeb_graph(args.load_graph)
+            print(f"Loaded graph with metadata: {metadata}")
+        except Exception as err:
+            print(f"Error loading Reeb graph: {err}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print("Constructing Reeb graph using Tractosearch clustering...")
+        try:
+            R, node_loc = construct_robust_reeb(
+                streamlines,
+                eps=args.epsilon,
+                alpha=args.alpha,
+                delta=args.delta,
+                clustering_threshold=args.clustering_threshold,
+                resample_nb=args.resample
+            )
+        except Exception as err:
+            print(f"Error constructing Reeb graph: {err}", file=sys.stderr)
+            sys.exit(1)
+
+        if args.save_graph:
+            print(f"Saving Reeb graph to {args.save_graph}...")
+            metadata = {
+                "in_tractogram": args.in_tractogram,
+                "epsilon": args.epsilon,
+                "alpha": args.alpha,
+                "delta": args.delta,
+                "clustering_threshold": args.clustering_threshold,
+                "resample_nb": args.resample
+            }
+            try:
+                save_reeb_graph(args.save_graph, R, node_loc, metadata)
+            except Exception as err:
+                print(f"Error saving Reeb graph: {err}", file=sys.stderr)
 
     print(
-        f"Reeb graph constructed: {len(R.nodes)} nodes, {len(R.edges)} edges.")
+        f"Reeb graph ready: {len(R.nodes())} nodes, {len(R.edges())} edges.")
 
     # Print a brief node-type summary
     if len(R.nodes) > 0:
