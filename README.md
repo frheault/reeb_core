@@ -13,14 +13,14 @@ This repository provides a unified framework for topological modeling of white m
 
 ## Installation
 
-First, ensure that the local dependency `tractosearch` is installed. From the parent directory:
+First, ensure that the local dependency `tractosearch` is installed. (see [TractoSearch](https://github.com/StongeEtienne/tractosearch))
 ```bash
-pip install -e ./tractosearch
+pip install tractosearch
 ```
 
 Then, install `reeb_core` in editable mode:
 ```bash
-pip install -e ./reeb_core
+pip install -e ./
 ```
 
 ---
