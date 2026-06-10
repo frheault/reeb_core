@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reeb_core"
+version = "0.1.0"
+description = "Unified Reeb Graph & Tractosearch Framework"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "dipy",
+    "nibabel",
+    "networkx",
+    "vtk",
+    "autopep8",
+]
+
+[project.entry-points.console_scripts]
+reeb-visualize = "reeb_core.cli.visualizer:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["reeb_core*"]
