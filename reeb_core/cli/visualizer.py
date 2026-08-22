@@ -630,16 +630,16 @@ def main():
     )
     parser.add_argument(
         "in_tractogram", help="Path to input streamlines file (.trk or .tck)")
-    parser.add_argument("--epsilon", "-e", type=float, default=1.5,
-                        help="Distance threshold between streamlines to define bundles (default: 1.5)")
-    parser.add_argument("--alpha", "-a", type=float, default=2.0,
-                        help="Persistence spatial length threshold for graph contraction (default: 2.0)")
-    parser.add_argument("--delta", "-d", type=int, default=2,
-                        help="Minimum streamline count threshold to prune noisy bundles (default: 2)")
     parser.add_argument("--clustering_threshold", "-c", type=float, default=2.5,
                         help="MDF distance threshold in mm for Tractosearch clustering (default: 2.5)")
     parser.add_argument("--resample", "-r", type=int, default=40,
                         help="Number of points to resample streamlines (default: 40)")
+    parser.add_argument("--epsilon", "-e", type=float, default=1.5,
+                        help="Distance threshold between streamlines to define bundles (default: 1.5)")
+    parser.add_argument("--alpha", "-a", type=float, default=2.0,
+                        help="Persistence spatial length threshold for graph contraction (default: 2.0)")
+    parser.add_argument("--min_branch_count", "-m", type=int, default=2,
+                        help="Minimum segment count threshold to prune weak topological branches after the graph simulation (default: 2)")
 
     parser.add_argument("--save_graph", type=str, default=None,
                         help="Path to save the computed Reeb graph as JSON for future use.")
@@ -672,7 +672,7 @@ def main():
                 streamlines,
                 eps=args.epsilon,
                 alpha=args.alpha,
-                delta=args.delta,
+                min_branch_count=args.min_branch_count,
                 clustering_threshold=args.clustering_threshold,
                 resample_nb=args.resample
             )
@@ -686,7 +686,7 @@ def main():
                 "in_tractogram": args.in_tractogram,
                 "epsilon": args.epsilon,
                 "alpha": args.alpha,
-                "delta": args.delta,
+                "min_branch_count": args.min_branch_count,
                 "clustering_threshold": args.clustering_threshold,
                 "resample_nb": args.resample
             }

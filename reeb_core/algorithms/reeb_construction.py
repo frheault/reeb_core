@@ -350,10 +350,10 @@ def _sweep_line_simulation(num_centroids, L, events_T, next_event_t):
     return cluster_assignments
 
 
-def _filter_bundles(cluster_assignments, num_centroids, L, cluster_map, delta):
-    """Apply delta-threshold filtering and propagate valid cluster IDs.
+def _filter_bundles(cluster_assignments, num_centroids, L, cluster_map, min_branch_count):
+    """Apply min_branch_count filtering and propagate valid cluster IDs.
 
-    Removes clusters whose total streamline count is at or below ``delta``,
+    Removes clusters whose total streamline count is at or below ``min_branch_count``,
     marks affected cells as -2, and propagates valid cluster IDs forward
     and backward to fill the gaps.
 
@@ -367,8 +367,8 @@ def _filter_bundles(cluster_assignments, num_centroids, L, cluster_map, delta):
         Number of points per streamline.
     cluster_map : dict
         Mapping from centroid index to cluster size.
-    delta : float
-        Minimum bundle streamline count threshold.
+    min_branch_count : float
+        Minimum branch segment count threshold.
 
     Returns
     -------
@@ -393,7 +393,7 @@ def _filter_bundles(cluster_assignments, num_centroids, L, cluster_map, delta):
                     trajectory_counts[uc] = cluster_map[stream_i]
 
         for (x, y) in trajectory_counts.items():
-            if y <= delta:
+            if y <= min_branch_count:
                 delete_cluster.add(x)
 
         # Vectorized check for deleted bundles
@@ -657,7 +657,7 @@ def construct_robust_reeb(
     streamlines: List[np.ndarray],
     eps: float,
     alpha: float,
-    delta: float,
+    min_branch_count: float,
     clustering_threshold: float = 2.5,
     resample_nb: int = 40,
     use_real_positions: bool = False
@@ -673,8 +673,8 @@ def construct_robust_reeb(
         Distance between a pair of streamlines defining sparsity.
     alpha : float
         Spatial length of the bundle introducing persistence (also edge length merge threshold).
-    delta : float
-        Minimum bundle streamline count threshold.
+    min_branch_count : float
+        Minimum branch segment count threshold.
     clustering_threshold : float
         Distance threshold for Tractosearch clustering (MDF distance).
     resample_nb : int
@@ -730,7 +730,7 @@ def construct_robust_reeb(
 
     # 5. Filter bundles
     cluster_assignments, deleted_streamlines, trajectory_counts = _filter_bundles(
-        cluster_assignments, num_centroids, L, cluster_map, delta)
+        cluster_assignments, num_centroids, L, cluster_map, min_branch_count)
 
     # 6. Construct Reeb graph
     logger.info("Step 5/6: Constructing Reeb Graph nodes and edges...")

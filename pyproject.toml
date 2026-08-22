@@ -21,6 +21,8 @@ dependencies = [
     "networkx",
     "vtk",
     "autopep8",
+    "tractosearch",
+    "numba"
 ]
 
 [project.entry-points.console_scripts]
